@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkcomponent_a=self.webpackChunkcomponent_a||[]).push([[138,179],{138:(e,s,n)=>{n.r(s),n.d(s,{message:()=>o});const o="Hi from Module B"}}]);
