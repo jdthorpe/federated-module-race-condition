@@ -1,16 +1,23 @@
 # Demonstration of a race condition with the Federated Module Plugin with standard chunk IDs
 
+This repo illustrates one of the "gotchas" of working with Federated Modules
+in Webpack, which is that **all of your federated module must have a unique
+name in their `package.json`**. Otherwise random collisions can occur between
+resources in otherwise independent modules.
+
 ## Background
 
-Internally, webpack seems to keep track of chunks by their id, which is a
-hash of their module loaders + file path. Exposing a common filename (e.g.
-`src/index.js`) in multiple federated modules will produce Chunks with the
-same id. At runtime, whichever federated module is loaded first will be
-cached and used by all remote modules that expose the same file name
+Internally, webpack seems to keep track of chunks by their package name +
+chunk id, ( and chunk id's are just a hash of their module loaders + file
+path). Exposing a common filename (e.g. `src/index.js`) will result in a
+common chunk id (e.g. `138.js`), and if two federated modules have the same
+name (defined in their `package.json` file), then the underlying resources
+will become ambiguous and will be subject to a race condition (depending on
+which module's `remoteEntry.js` gets loaded first)
 
 ## Demo
 
-In this app, there are two federated modules that expose a `src/index.js` file which are simple enough: 
+In this app, there are two federated modules that expose a `src/index.js` file which are simple enough:
 
 ```js
 // module_a/src/index.js
@@ -61,6 +68,12 @@ Module B says: Hi from Module B
 
 Depending on whether module A or B gets loaded first. (The Nginx server
 introduces a random delay to help make the switching behavior more obvious)
+
+## Solution
+
+The solution here is to rename either of the modules in their package.json
+files and re-compile the library by calling `npm run build` in their
+directory.
 
 ## Usage
 
